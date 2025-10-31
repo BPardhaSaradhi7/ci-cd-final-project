@@ -3,7 +3,7 @@ kind: Task
 metadata:
   name: cleanup
 spec:
-  description: This task cleans up the workspace by deleting all files.
+  description: This task will clean up a workspace by deleting all the files.
   workspaces:
     - name: source
   steps:
@@ -20,7 +20,7 @@ spec:
         #!/usr/bin/env sh
         set -eu
         echo "Removing all files from ${WORKSPACE_SOURCE_PATH} ..."
-        if [ -d "${WORKSPACE_SOURCE_PATH}" ]; then
+        if [ -d "${WORKSPACE_SOURCE_PATH}" ] ; then
           rm -rf "${WORKSPACE_SOURCE_PATH:?}"/*
           rm -rf "${WORKSPACE_SOURCE_PATH}"/.[!.]*
           rm -rf "${WORKSPACE_SOURCE_PATH}"/..?*
@@ -47,16 +47,21 @@ spec:
         #!/bin/bash
         set -e
 
-        echo "Upgrading pip and wheel..."
+        echo "📂 Checking current directory: $(pwd)"
+        echo "📄 Listing files in workspace:"
+        ls -la
+
+        echo "⬆️ Upgrading pip and wheel..."
         python -m pip install --upgrade pip wheel
 
-        echo "Checking for requirements.txt..."
         if [ -f "requirements.txt" ]; then
-          echo "Installing dependencies from requirements.txt..."
+          echo "📦 Installing dependencies from requirements.txt..."
           pip install -r requirements.txt
         else
-          echo "⚠️ requirements.txt not found. Skipping dependency installation."
+          echo "⚠️ requirements.txt not found in $(pwd)"
+          echo "Available files:"
+          ls -la
         fi
 
-        echo "Running nosetests..."
+        echo "🧪 Running nosetests..."
         nosetests $(params.args)
